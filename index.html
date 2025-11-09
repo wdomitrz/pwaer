@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="src/style.css" />
+    <title>PWAer</title>
+  </head>
+  <body>
+    <form id="numberForm">
+      <label for="number">Copy to use:</label
+      ><input type="number" id="number" min="0" max="99" required /><br />
+      <input type="submit" value="Redirect" />
+    </form>
+    <script>
+      document
+        .getElementById("numberForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const copyNumber = document.getElementById("number").value;
+          window.location.href = `./copy/${copyNumber}/index.html`;
+        });
+    </script>
+  </body>
+</html>

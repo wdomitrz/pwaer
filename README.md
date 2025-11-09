@@ -1,1 +1,1 @@
-[PWAer](https://wdomitrz.github.io/pwaer/0)
+[PWAer](https://wdomitrz.github.io/pwaer)
