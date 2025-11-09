@@ -2,9 +2,7 @@ function getUrl() {
   return window.location.href.replace("/create.html?", "/pwa.html?");
 }
 function getId(url) {
-  const urlObj = new URL(getUrl());
-  const suffix = urlObj.pathname + urlObj.search;
-  return suffix;
+  return btoa(encodeURIComponent(getUrl()));
 }
 function getManifest(name, url, icon_url) {
   return {
