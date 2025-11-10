@@ -4,11 +4,11 @@ function getUrl() {
 function getId(url) {
   return btoa(encodeURIComponent(getUrl()));
 }
-function getManifest(name, url, icon_url) {
+function getManifest(name, url, icon_url, display) {
   return {
     name: name,
     id: getId(url),
-    display: "standalone",
+    display: display,
     start_url: getUrl(url),
     icons: [
       {
@@ -38,26 +38,32 @@ function getAll() {
     name: params.get("name"),
     url: params.get("url"),
     icon_url: params.get("icon_url"),
+    display: params.get("display"),
   };
 }
-function showManifest(manifest) {
-  const jsonString = JSON.stringify(manifest, null, 2);
-
+function addJson(name, content) {
   const preElement = document.createElement("pre");
-  preElement.id = "manifest_json";
-  preElement.textContent = jsonString;
-
+  preElement.id = name;
+  preElement.textContent = JSON.stringify(content, null, 2);
   document.body.appendChild(preElement);
 }
-function setAll({ name: name, url: url, icon_url: icon_url }, redirect) {
-  console.log({ name: name, url: url, icon_url: icon_url });
-  setTitle(name);
-  setIcon(icon_url);
-  const manifest = getManifest(name, url, icon_url);
+function showManifest(config, manifest) {
+  addJson("config", config);
+  addJson("manifest", manifest);
+}
+function setAll(config, redirect) {
+  setTitle(config.name);
+  setIcon(config.icon_url);
+  const manifest = getManifest(
+    config.name,
+    config.url,
+    config.icon_url,
+    config.display
+  );
   setManifest(manifest);
   if (redirect) {
-    window.location.replace(url);
+    window.location.replace(config.url);
   } else {
-    showManifest(manifest);
+    showManifest(config, manifest);
   }
 }
