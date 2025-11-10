@@ -1,18 +1,5 @@
-function getUrl() {
-  return window.location.href.replace("/create.html?", "/pwa.html?");
-}
-function getId(url) {
-  return btoa(encodeURIComponent(getUrl()));
-}
-const CACHE = getId(null);
-const FILES = [
-  "./",
-  "./create.html",
-  "./index.html",
-  "./manifest.js",
-  "./pwa.html",
-  "./style.css",
-];
+const CACHE = btoa(new URL(self.location.href).pathname);
+const FILES = ["./", "./index.html", "./app.js", "./style.css"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)));
