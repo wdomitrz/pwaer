@@ -1,6 +1,19 @@
 body {
   background-color: white;
   color: black;
+  font-family: Arial, sans-serif;
+}
+
+form,
+#manifest {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+#manifest {
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 @media (prefers-color-scheme: dark) {

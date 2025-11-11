@@ -10,12 +10,12 @@ class ConfigForm {
       <input type="url" name="icon_url" required /><br />
       <label>display:</label>
       <select name="display" required>
-        <option>standalone</option>
+        <option selected>standalone</option>
         <option>fullscreen</option>
         <option>minimal-ui</option>
         <option>browser</option></select
       ><br />
-      <label>Copy to use:</label>
+      <label>copy to use:</label>
       <input
         type="number"
         name="copy_number"
