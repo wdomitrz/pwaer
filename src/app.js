@@ -113,46 +113,37 @@ class Config {
     };
   }
 
-  async fetch_icon() {
-    const proxy = "https://api.allorigins.win/get?url=";
-    const response = await fetch(`${proxy}${encodeURIComponent(this.url)}`);
-    const data = await response.json();
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data.contents, "text/html");
-    const origin = new URL(this.url).origin;
-
-    const appleIcon = doc.querySelector('link[rel="apple-touch-icon"]');
-    if (appleIcon) return new URL(appleIcon.getAttribute("href"), origin).href;
-
-    const largeIcon = doc.querySelector('link[rel="icon"]');
-    if (largeIcon) return new URL(largeIcon.getAttribute("href"), origin).href;
-
-    return `https://www.google.com/s2/favicons?domain=${
+  _get_google_api_icon_url(size) {
+    `https://www.google.com/s2/favicons?domain=${
       new URL(this.url).hostname
-    }&sz=144`;
+    }&sz=${size}`;
   }
 
-  async get_icon_url() {
-    if (this.icon_url_overwrite !== undefined && this.icon_url_overwrite != "")
-      return this.icon_url_overwrite;
+  _set_icon_urls() {
+    this.icon_url_overwrite = params.get("icon_url_overwrite");
 
-    try {
-      return await this.fetch_icon();
-    } catch {
-      return `https://www.google.com/s2/favicons?domain=${
-        new URL(this.url).hostname
-      }&sz=144`;
+    if (
+      this.icon_url_overwrite !== undefined &&
+      this.icon_url_overwrite != ""
+    ) {
+      this.favicon_url = this.icon_url_overwrite;
+      this.icons = [
+        {
+          src: this.icon_url_overwrite,
+          sizes: "any",
+        },
+      ];
+    } else {
+      this.favicon_url = this._get_google_api_icon_url(128);
+
+      this.icons = [16, 32, 64, 128, 144, 256, 512, 1024].map((size) => ({
+        src: this._get_google_api_icon_url(size),
+        sizes: `${size}x${size}`,
+      }));
     }
   }
 
-  static async create_async() {
-    const value = new Config();
-    value.init();
-    return value;
-  }
-
-  async init() {
+  constructor() {
     this.currentUrl = window.location.href;
 
     const params = new URLSearchParams(new URL(this.currentUrl).search);
@@ -161,8 +152,7 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
-    this.icon_url_overwrite = params.get("icon_url_overwrite");
-    this.icon_url = await this.get_icon_url();
+    this._set_icon_urls();
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
@@ -179,7 +169,7 @@ class Config {
   }
   set_icon() {
     const faviconElement = document.getElementById("favicon");
-    faviconElement.href = this.icon_url;
+    faviconElement.href = this.favicon_url;
   }
   set_title() {
     document.title = this.name;
@@ -215,8 +205,8 @@ function form_main() {
   return ConfigForm.add_form().show();
 }
 
-async function pwa_main_async() {
-  return (await Config.create_async()).do_all();
+function pwa_main() {
+  return new Config().do_all();
 }
 
 if ("serviceWorker" in navigator) {
