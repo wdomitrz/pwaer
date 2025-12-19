@@ -15,18 +15,10 @@ class ConfigForm {
         <option>minimal-ui</option>
         <option>browser</option></select
       ><br />
-      <label>copy to use:</label>
-      <input
-        type="number"
-        name="copy_number"
-        min="0"
-        max="99"
-        value="0"
-        required
-      /><br />
       <input type="submit" />
     </form>
     `;
+  static NUM_COPIES = 1024;
 
   static get_target_action(copy_number) {
     function is_the_same_dir() {
@@ -43,6 +35,10 @@ class ConfigForm {
     }
   }
 
+  static random_copy_number() {
+    return Math.floor(Math.random() * this.NUM_COPIES);
+  }
+
   _configure_form(form) {
     form.addEventListener("submit", function (e) {
       const hiddenInput = document.createElement("input");
@@ -52,7 +48,10 @@ class ConfigForm {
       form.appendChild(hiddenInput);
 
       const data = new FormData(e.target);
-      e.target.action = ConfigForm.get_target_action(data.get("copy_number"));
+
+      e.target.action = ConfigForm.get_target_action(
+        ConfigForm.random_copy_number()
+      );
     });
     return form;
   }
@@ -83,8 +82,6 @@ class ConfigForm {
     this.form_element.querySelector('[name="icon_url"]').value =
       config.icon_url;
     this.form_element.querySelector('[name="display"]').value = config.display;
-    this.form_element.querySelector('[name="copy_number"]').value =
-      config.copy_number;
     return this;
   }
 }
@@ -132,7 +129,6 @@ class Config {
     this.url = params.get("url");
     this.icon_url = params.get("icon_url");
     this.display = params.get("display");
-    this.copy_number = parseInt(params.get("copy_number"), 10);
     this.redirect = params.get("redirect") === "true";
 
     this.redirection_url = this._get_redirection_url();
