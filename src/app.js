@@ -6,8 +6,8 @@ class ConfigForm {
       <input type="text" name="name" required /><br />
       <label>url:</label>
       <input type="url" name="url" required /><br />
-      <label>icon url:</label>
-      <input type="url" name="icon_url" required /><br />
+      <label>icon url overwrite:</label>
+      <input type="url" name="icon_url_overwrite"/><br />
       <input type="submit" />
     </form>
     `;
@@ -72,8 +72,8 @@ class ConfigForm {
   set_values(config) {
     this.form_element.querySelector('[name="name"]').value = config.name;
     this.form_element.querySelector('[name="url"]').value = config.url;
-    this.form_element.querySelector('[name="icon_url"]').value =
-      config.icon_url;
+    this.form_element.querySelector('[name="icon_url_overwrite"]').value =
+      config.icon_url_overwrite;
     return this;
   }
 }
@@ -98,27 +98,76 @@ class Config {
   _get_id(url) {
     return Config.simpleHash(encodeURIComponent(url));
   }
-  _get_manifest() {
+  async _get_manifest() {
     return {
       name: this.name,
       id: this.id,
       display: this.display,
       start_url: this.redirection_url,
-      icons: this.get_icons(),
+      icons: await this.get_icons(),
     };
   }
 
-  get_favicon_url() {
-    return this.icon_url;
+  static _get_google_api_icon_url(size, url) {
+    return `https://www.google.com/s2/favicons?domain=${
+      new URL(url).hostname
+    }&sz=${size}`;
   }
 
-  get_icons() {
-    return [
-      {
-        src: this.icon_url,
-        sizes: "any",
-      },
-    ];
+  is_icon_url_overwrite_valid() {
+    return (
+      this.icon_url_overwrite !== undefined && this.icon_url_overwrite != ""
+    );
+  }
+
+  get_favicon_url() {
+    if (this.is_icon_url_overwrite_valid()) {
+      return this.icon_url_overwrite;
+    } else {
+      return Config._get_google_api_icon_url(128, this.url);
+    }
+  }
+
+  static async get_icons_async(url) {
+    const sizesToTry = [64, 128, 144, 192, 256, 512];
+
+    const promises = sizesToTry.map((size) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+
+        img.onload = () => {
+          resolve(
+            Math.min(img.width, img.height) <= size &&
+              size <= Math.max(img.width, img.height)
+              ? {
+                  src: Config._get_google_api_icon_url(img.width, url),
+                  sizes: `${img.width}x${img.height}`,
+                  type: "image/png",
+                }
+              : null
+          );
+        };
+
+        img.onerror = () => resolve(null);
+        img.src = Config._get_google_api_icon_url(size, url);
+      });
+    });
+
+    const results = await Promise.all(promises);
+    return results.filter(Boolean);
+  }
+
+  async get_icons() {
+    if (this.is_icon_url_overwrite_valid()) {
+      return [
+        {
+          src: this.icon_url_overwrite,
+          sizes: "any",
+        },
+      ];
+    } else {
+      return await Config.get_icons_async(this.url);
+    }
   }
 
   constructor() {
@@ -130,15 +179,18 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
-    this.icon_url = params.get("icon_url");
+    this.icon_url_overwrite = params.get("icon_url_overwrite");
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
-
-    this.manifest = this._get_manifest();
   }
 
-  set_manifest() {
+  async set_manifest_value() {
+    this.manifest = await this._get_manifest();
+    return this;
+  }
+
+  set_manifest_of_document() {
     const link = document.createElement("link");
     link.rel = "manifest";
     const b64manifest = btoa(JSON.stringify(this.manifest));
@@ -156,7 +208,7 @@ class Config {
   set_common() {
     this.set_title();
     this.set_icon();
-    this.set_manifest();
+    this.set_manifest_of_document();
   }
 
   do_redirect() {
@@ -183,8 +235,10 @@ function form_main() {
   return ConfigForm.add_form().show();
 }
 
-function pwa_main() {
-  return new Config().do_all();
+async function pwa_main() {
+  const config = new Config();
+  await config.set_manifest_value();
+  return config.do_all();
 }
 
 if ("serviceWorker" in navigator) {
