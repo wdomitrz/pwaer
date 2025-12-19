@@ -104,39 +104,40 @@ class Config {
       id: this.id,
       display: this.display,
       start_url: this.redirection_url,
-      icons: [
-        {
-          src: this.icon_url,
-          sizes: "any",
-        },
-      ],
+      icons: this.get_icons(),
     };
   }
 
   _get_google_api_icon_url(size) {
-    `https://www.google.com/s2/favicons?domain=${
+    return `https://www.google.com/s2/favicons?domain=${
       new URL(this.url).hostname
     }&sz=${size}`;
   }
 
-  _set_icon_urls() {
-    this.icon_url_overwrite = params.get("icon_url_overwrite");
+  is_icon_url_overwrite_valid() {
+    return (
+      this.icon_url_overwrite !== undefined && this.icon_url_overwrite != ""
+    );
+  }
 
-    if (
-      this.icon_url_overwrite !== undefined &&
-      this.icon_url_overwrite != ""
-    ) {
-      this.favicon_url = this.icon_url_overwrite;
-      this.icons = [
+  get_favicon_url() {
+    if (this.is_icon_url_overwrite_valid()) {
+      return this.icon_url_overwrite;
+    } else {
+      return this._get_google_api_icon_url(128);
+    }
+  }
+
+  get_icons() {
+    if (this.is_icon_url_overwrite_valid()) {
+      return [
         {
           src: this.icon_url_overwrite,
           sizes: "any",
         },
       ];
     } else {
-      this.favicon_url = this._get_google_api_icon_url(128);
-
-      this.icons = [16, 32, 64, 128, 144, 256, 512, 1024].map((size) => ({
+      return [16, 32, 64, 128, 144, 256, 512, 1024].map((size) => ({
         src: this._get_google_api_icon_url(size),
         sizes: `${size}x${size}`,
       }));
@@ -152,7 +153,7 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
-    this._set_icon_urls();
+    this.icon_url_overwrite = params.get("icon_url_overwrite");
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
@@ -169,7 +170,7 @@ class Config {
   }
   set_icon() {
     const faviconElement = document.getElementById("favicon");
-    faviconElement.href = this.favicon_url;
+    faviconElement.href = this.get_favicon_url();
   }
   set_title() {
     document.title = this.name;
