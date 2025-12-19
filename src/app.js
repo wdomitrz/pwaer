@@ -137,7 +137,7 @@ class Config {
         },
       ];
     } else {
-      return [16, 32, 64, 128, 144, 256, 512, 1024].map((size) => ({
+      return [256, 512, 1024, 144].map((size) => ({
         src: this._get_google_api_icon_url(size),
         sizes: `${size}x${size}`,
       }));
