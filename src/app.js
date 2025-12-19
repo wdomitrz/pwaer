@@ -6,6 +6,8 @@ class ConfigForm {
       <input type="text" name="name" required /><br />
       <label>url:</label>
       <input type="url" name="url" required /><br />
+      <label>icon url overwrite:</label>
+      <input type="url" name="icon_url"/><br />
       <input type="submit" />
     </form>
     `;
@@ -102,19 +104,11 @@ class Config {
       start_url: this.redirection_url,
       icons: [
         {
-          src: this.get_icon_url(144),
-          sizes: "144x144",
-        },
-        {
-          src: this.get_icon_url(512),
-          sizes: "512x512",
+          src: this.icon_url,
+          sizes: "any",
         },
       ],
     };
-  }
-
-  get_icon_url(size) {
-    return `https://www.google.com/s2/favicons?sz=${size}&domain=${this.url}`;
   }
 
   constructor() {
@@ -126,6 +120,10 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
+
+    this.icon_url = params.get("icon_url");
+    if (this.icon_url == "")
+      this.icon_url = `https://www.google.com/s2/favicons?sz=144&domain=${this.url}`;
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
@@ -142,7 +140,7 @@ class Config {
   }
   set_icon() {
     const faviconElement = document.getElementById("favicon");
-    faviconElement.href = this.get_icon_url(128);
+    faviconElement.href = this.icon_url;
   }
   set_title() {
     document.title = this.name;
