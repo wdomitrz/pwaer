@@ -124,7 +124,7 @@ class Config {
     this.redirect = params.get("redirect") === "true";
 
     this.icon_url = this.icon_url_overwrite = params.get("icon_url_overwrite");
-    if (this.icon_url == "")
+    if (this.icon_url === undefined || this.icon_url == "")
       this.icon_url = `https://www.google.com/s2/favicons?sz=144&domain=${this.url}`;
 
     this.redirection_url = this._get_redirection_url();
