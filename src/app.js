@@ -8,13 +8,6 @@ class ConfigForm {
       <input type="url" name="url" required /><br />
       <label>icon url:</label>
       <input type="url" name="icon_url" required /><br />
-      <label>display:</label>
-      <select name="display" required>
-        <option selected>standalone</option>
-        <option>fullscreen</option>
-        <option>minimal-ui</option>
-        <option>browser</option></select
-      ><br />
       <input type="submit" />
     </form>
     `;
@@ -81,7 +74,6 @@ class ConfigForm {
     this.form_element.querySelector('[name="url"]').value = config.url;
     this.form_element.querySelector('[name="icon_url"]').value =
       config.icon_url;
-    this.form_element.querySelector('[name="display"]').value = config.display;
     return this;
   }
 }
@@ -128,7 +120,7 @@ class Config {
     this.name = params.get("name");
     this.url = params.get("url");
     this.icon_url = params.get("icon_url");
-    this.display = params.get("display");
+    this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
 
     this.redirection_url = this._get_redirection_url();
