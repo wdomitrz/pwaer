@@ -136,16 +136,11 @@ class Config {
         const img = new Image();
 
         img.onload = () => {
-          resolve(
-            Math.min(img.width, img.height) <= size &&
-              size <= Math.max(img.width, img.height)
-              ? {
-                  src: Config._get_google_api_icon_url(img.width, url),
-                  sizes: `${img.width}x${img.height}`,
-                  type: "image/png",
-                }
-              : null
-          );
+          resolve({
+            src: Config._get_google_api_icon_url(img.width, url),
+            sizes: `${img.width}x${img.height}`,
+            type: "image/png",
+          });
         };
 
         img.onerror = () => resolve(null);
