@@ -205,11 +205,11 @@ class Config {
 }
 
 function form_main() {
-  ConfigForm.add_form().show();
+  return ConfigForm.add_form().show();
 }
 
 async function pwa_main_async() {
-  (await Config.create_async()).do_all();
+  return (await Config.create_async()).do_all();
 }
 
 if ("serviceWorker" in navigator) {
