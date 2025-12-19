@@ -7,7 +7,7 @@ class ConfigForm {
       <label>url:</label>
       <input type="url" name="url" required /><br />
       <label>icon url overwrite:</label>
-      <input type="url" name="icon_url"/><br />
+      <input type="url" name="icon_url_overwrite"/><br />
       <input type="submit" />
     </form>
     `;
@@ -72,6 +72,8 @@ class ConfigForm {
   set_values(config) {
     this.form_element.querySelector('[name="name"]').value = config.name;
     this.form_element.querySelector('[name="url"]').value = config.url;
+    this.form_element.querySelector('[name="icon_url_overwrite"]').value =
+      config.icon_url_overwrite;
     return this;
   }
 }
@@ -121,7 +123,7 @@ class Config {
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
 
-    this.icon_url = params.get("icon_url");
+    this.icon_url = this.icon_url_overwrite = params.get("icon_url_overwrite");
     if (this.icon_url == "")
       this.icon_url = `https://www.google.com/s2/favicons?sz=144&domain=${this.url}`;
 
