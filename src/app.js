@@ -164,31 +164,19 @@ class Config {
 
   do_redirect() {
     window.location.replace(this.url);
+    return this;
   }
 
-  show_manifest() {
-    function addJson(name, content) {
-      const preElement = document.createElement("pre");
-      preElement.id = name;
-      preElement.textContent = JSON.stringify(content, null, 2);
-      document.body.appendChild(preElement);
-    }
-    addJson("manifest", this.manifest);
+  show_form() {
+    this.config_form = ConfigForm.add_form().set_values(this).show();
   }
-  do_rest() {
-    if (this.redirect) {
-      this.redirect();
-    } else {
-      this.config_form = ConfigForm.add_form().set_values(this).show();
-      this.show_manifest();
-    }
-  }
+
   do_all() {
     this.set_common();
     if (this.redirect) {
       this.do_redirect();
     } else {
-      this.do_rest();
+      this.show_form();
     }
     return this;
   }
