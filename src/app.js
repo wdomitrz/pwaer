@@ -113,7 +113,39 @@ class Config {
     };
   }
 
-  constructor() {
+  async fetch_icon() {
+    const proxy = "https://api.allorigins.win/get?url=";
+    const response = await fetch(`${proxy}${encodeURIComponent(this.url)}`);
+    const data = await response.json();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, "text/html");
+    const origin = new URL(targetUrl).origin;
+
+    const appleIcon = doc.querySelector('link[rel="apple-touch-icon"]');
+    if (appleIcon) return new URL(appleIcon.getAttribute("href"), origin).href;
+
+    const largeIcon = doc.querySelector('link[rel="icon"]');
+    if (largeIcon) return new URL(largeIcon.getAttribute("href"), origin).href;
+
+    return `https://www.google.com/s2/favicons?domain=${
+      new URL(targetUrl).hostname
+    }&sz=144`;
+  }
+
+  async get_icon_url() {
+    if (this.icon_url_overwrite !== undefined && this.icon_url_overwrite != "")
+      return this.icon_url_overwrite;
+    return await this.fetch_icon();
+  }
+
+  static async create() {
+    const value = Config();
+    value.init();
+    return value;
+  }
+
+  async init() {
     this.currentUrl = window.location.href;
 
     const params = new URLSearchParams(new URL(this.currentUrl).search);
@@ -122,10 +154,8 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
-
-    this.icon_url = this.icon_url_overwrite = params.get("icon_url_overwrite");
-    if (this.icon_url === undefined || this.icon_url == "")
-      this.icon_url = `https://www.google.com/s2/favicons?sz=144&domain=${this.url}`;
+    this.icon_url_overwrite = params.get("icon_url_overwrite");
+    this.icon_url = await this.get_icon_url();
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
@@ -179,7 +209,7 @@ function form_main() {
 }
 
 function pwa_main() {
-  new Config().do_all();
+  Config.create().do_all();
 }
 
 if ("serviceWorker" in navigator) {
