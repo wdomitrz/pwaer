@@ -139,8 +139,8 @@ class Config {
     return await this.fetch_icon();
   }
 
-  static async create() {
-    const value = Config();
+  static async create_async() {
+    const value = new Config();
     value.init();
     return value;
   }
@@ -208,8 +208,8 @@ function form_main() {
   ConfigForm.add_form().show();
 }
 
-function pwa_main() {
-  Config.create().do_all();
+async function pwa_main_async() {
+  (await Config.create_async()).do_all();
 }
 
 if ("serviceWorker" in navigator) {
