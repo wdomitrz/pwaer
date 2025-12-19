@@ -102,12 +102,21 @@ class Config {
       start_url: this.redirection_url,
       icons: [
         {
-          src: this.icon_url,
-          sizes: "any",
+          src: this.get_icon_url(144),
+          sizes: "144x144",
+        },
+        {
+          src: this.get_icon_url(512),
+          sizes: "512x512",
         },
       ],
     };
   }
+
+  get_icon_url(size) {
+    return `https://www.google.com/s2/favicons?sz=${size}&domain=${this.url}`;
+  }
+
   constructor() {
     this.currentUrl = window.location.href;
 
@@ -115,9 +124,6 @@ class Config {
 
     this.name = params.get("name");
     this.url = params.get("url");
-    this.icon_url =
-      params.get("icon_url") ??
-      `https://www.google.com/s2/favicons?sz=128&domain=${this.url}`;
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
 
@@ -136,7 +142,7 @@ class Config {
   }
   set_icon() {
     const faviconElement = document.getElementById("favicon");
-    faviconElement.href = this.icon_url;
+    faviconElement.href = this.get_icon_url(128);
   }
   set_title() {
     document.title = this.name;
