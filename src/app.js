@@ -117,7 +117,7 @@ class Config {
     this.url = params.get("url");
     this.icon_url =
       params.get("icon_url") ??
-      `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+      `https://www.google.com/s2/favicons?sz=128&domain=${this.url}`;
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
 
