@@ -6,8 +6,8 @@ class ConfigForm {
       <input type="text" name="name" required /><br />
       <label>url:</label>
       <input type="url" name="url" required /><br />
-      <label>icon url overwrite:</label>
-      <input type="url" name="icon_url_overwrite"/><br />
+      <label>icon url:</label>
+      <input type="url" name="icon_url" required /><br />
       <input type="submit" />
     </form>
     `;
@@ -72,8 +72,8 @@ class ConfigForm {
   set_values(config) {
     this.form_element.querySelector('[name="name"]').value = config.name;
     this.form_element.querySelector('[name="url"]').value = config.url;
-    this.form_element.querySelector('[name="icon_url_overwrite"]').value =
-      config.icon_url_overwrite;
+    this.form_element.querySelector('[name="icon_url"]').value =
+      config.icon_url;
     return this;
   }
 }
@@ -108,42 +108,17 @@ class Config {
     };
   }
 
-  _get_google_api_icon_url(size) {
-    return `https://www.google.com/s2/favicons?domain=${
-      new URL(this.url).hostname
-    }&sz=${size}`;
-  }
-
-  is_icon_url_overwrite_valid() {
-    return (
-      this.icon_url_overwrite !== undefined && this.icon_url_overwrite != ""
-    );
-  }
-
   get_favicon_url() {
-    if (this.is_icon_url_overwrite_valid()) {
-      return this.icon_url_overwrite;
-    } else {
-      return this._get_google_api_icon_url(128);
-    }
+    return this.icon_url;
   }
 
   get_icons() {
-    if (this.is_icon_url_overwrite_valid()) {
-      return [
-        {
-          src: this.icon_url_overwrite,
-          sizes: "any",
-        },
-      ];
-    } else {
-      return [
-        {
-          src: this._get_google_api_icon_url(size),
-          sizes: "any",
-        },
-      ];
-    }
+    return [
+      {
+        src: this.icon_url,
+        sizes: "any",
+      },
+    ];
   }
 
   constructor() {
@@ -155,7 +130,7 @@ class Config {
     this.url = params.get("url");
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
-    this.icon_url_overwrite = params.get("icon_url_overwrite");
+    this.icon_url = params.get("icon_url");
 
     this.redirection_url = this._get_redirection_url();
     this.id = this._get_id(this.redirection_url);
