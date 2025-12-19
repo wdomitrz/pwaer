@@ -6,8 +6,6 @@ class ConfigForm {
       <input type="text" name="name" required /><br />
       <label>url:</label>
       <input type="url" name="url" required /><br />
-      <label>icon url:</label>
-      <input type="url" name="icon_url" required /><br />
       <input type="submit" />
     </form>
     `;
@@ -72,8 +70,6 @@ class ConfigForm {
   set_values(config) {
     this.form_element.querySelector('[name="name"]').value = config.name;
     this.form_element.querySelector('[name="url"]').value = config.url;
-    this.form_element.querySelector('[name="icon_url"]').value =
-      config.icon_url;
     return this;
   }
 }
@@ -119,7 +115,9 @@ class Config {
 
     this.name = params.get("name");
     this.url = params.get("url");
-    this.icon_url = params.get("icon_url");
+    this.icon_url =
+      params.get("icon_url") ??
+      `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
     this.display = params.get("display") ?? "standalone";
     this.redirect = params.get("redirect") === "true";
 
