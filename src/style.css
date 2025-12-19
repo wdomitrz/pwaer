@@ -4,16 +4,10 @@ body {
   font-family: Arial, sans-serif;
 }
 
-form,
-#manifest {
+form {
   align-items: center;
   display: flex;
   flex-direction: column;
-}
-
-#manifest {
-  white-space: pre-wrap;
-  word-break: break-all;
 }
 
 @media (prefers-color-scheme: dark) {
