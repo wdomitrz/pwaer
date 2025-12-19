@@ -120,7 +120,7 @@ class Config {
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(data.contents, "text/html");
-    const origin = new URL(targetUrl).origin;
+    const origin = new URL(this.url).origin;
 
     const appleIcon = doc.querySelector('link[rel="apple-touch-icon"]');
     if (appleIcon) return new URL(appleIcon.getAttribute("href"), origin).href;
@@ -129,14 +129,21 @@ class Config {
     if (largeIcon) return new URL(largeIcon.getAttribute("href"), origin).href;
 
     return `https://www.google.com/s2/favicons?domain=${
-      new URL(targetUrl).hostname
+      new URL(this.url).hostname
     }&sz=144`;
   }
 
   async get_icon_url() {
     if (this.icon_url_overwrite !== undefined && this.icon_url_overwrite != "")
       return this.icon_url_overwrite;
-    return await this.fetch_icon();
+
+    try {
+      return await this.fetch_icon();
+    } catch {
+      return `https://www.google.com/s2/favicons?domain=${
+        new URL(this.url).hostname
+      }&sz=144`;
+    }
   }
 
   static async create_async() {
