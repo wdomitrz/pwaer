@@ -137,10 +137,12 @@ class Config {
         },
       ];
     } else {
-      return [256].map((size) => ({
-        src: this._get_google_api_icon_url(size),
-        sizes: `${size}x${size}`,
-      }));
+      return [
+        {
+          src: this._get_google_api_icon_url(size),
+          sizes: "any",
+        },
+      ];
     }
   }
 
